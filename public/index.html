@@ -1,112 +1,105 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Welcome to Firebase Hosting</title>
-
-    <!-- update the version number as needed -->
-    <script defer src="/__/firebase/9.16.0/firebase-app-compat.js"></script>
-    <!-- include only the Firebase features as you need -->
-    <script defer src="/__/firebase/9.16.0/firebase-auth-compat.js"></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-database-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-firestore-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-functions-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-messaging-compat.js"
-    ></script>
-    <script defer src="/__/firebase/9.16.0/firebase-storage-compat.js"></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-analytics-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-remote-config-compat.js"
-    ></script>
-    <script
-      defer
-      src="/__/firebase/9.16.0/firebase-performance-compat.js"
-    ></script>
-    <!-- 
-      initialize the SDK after all desired features are loaded, set useEmulator to false
-      to avoid connecting the SDK to running emulators.
-    -->
-    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
-    <script src="index.js"></script>
-    <style media="screen">
-      body {
-        background: #eceff1;
-        color: rgba(0, 0, 0, 0.87);
-        font-family: Roboto, Helvetica, Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-      }
-      #message {
-        background: white;
-        max-width: 360px;
-        margin: 100px auto 16px;
-        padding: 32px 24px;
-        border-radius: 3px;
-      }
-      #message h2 {
-        color: #ffa100;
-        font-weight: bold;
-        font-size: 16px;
-        margin: 0 0 8px;
-      }
-      #message h1 {
-        font-size: 22px;
-        font-weight: 300;
-        color: rgba(0, 0, 0, 0.6);
-        margin: 0 0 16px;
-      }
-      #message p {
-        line-height: 140%;
-        margin: 16px 0 24px;
-        font-size: 14px;
-      }
-      #message a {
-        display: block;
-        text-align: center;
-        background: #039be5;
-        text-transform: uppercase;
-        text-decoration: none;
-        color: white;
-        padding: 16px;
-        border-radius: 4px;
-      }
-      #message,
-      #message a {
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
-      }
-      #load {
-        color: rgba(0, 0, 0, 0.4);
-        text-align: center;
-        font-size: 13px;
-      }
-      @media (max-width: 600px) {
-        body,
-        #message {
-          margin-top: 0;
-          background: white;
-          box-shadow: none;
-        }
-        body {
-          border-top: 16px solid #ffa100;
-        }
-      }
-    </style>
+    <script type="module" src="main.js"></script>
+    <link rel="stylesheet" href="styles.css" />
   </head>
-  <body></body>
+  <body>
+    <table id="tablero"></table>
+    <form>
+      <div class="form-element">
+        <input type="text" id="fila" placeholder="Ingresa una fila (0-7)" />
+      </div>
+      <div class="form-element">
+        <input
+          type="text"
+          id="columna"
+          placeholder="Ingresa una columna (0-7)"
+        />
+      </div>
+      <div class="form-element">
+        <select id="color">
+          <option value="">Selecciona un color</option>
+          <option value="blanco">Blanco</option>
+          <option value="negro">Negro</option>
+        </select>
+      </div>
+
+      <div class="form-element">
+        <select id="pieza">
+          <option value="">Selecciona una pieza</option>
+          <option value="peon">Peón</option>
+          <option value="torre">Torre</option>
+          <option value="caballo">Caballo</option>
+          <option value="alfil">Alfil</option>
+          <option value="reina">Reina</option>
+          <option value="rey">Rey</option>
+        </select>
+      </div>
+      <div class="form-element">
+        <input
+          type="button"
+          value="Crear Pieza"
+          id="crear_pieza"
+          onclick="crearPieza()"
+        />
+      </div>
+      <script>
+        var tablero = document.getElementById("tablero");
+
+        // Crear tabla 8x8
+        for (var i = 0; i < 8; i++) {
+          var fila = tablero.insertRow(i);
+          for (var j = 0; j < 8; j++) {
+            var casillero = fila.insertCell(j);
+            casillero.id = "fila" + i + "columna" + j;
+
+            // Aplicar clases para el patrón de ajedrez
+            if ((i + j) % 2 == 0) {
+              casillero.classList.add("blanco");
+            } else {
+              casillero.classList.add("negro");
+            }
+          }
+        }
+
+        // Asignar pieza al presionar el botón "Crear Pieza"
+        function crearPieza() {
+          var fila = document.getElementById("fila").value;
+          var columna = document.getElementById("columna").value;
+          var pieza = document.getElementById("pieza").value;
+          var color = document.getElementById("color").value;
+          let caracter;
+
+          // Utiliza un switch para asignar el carácter Unicode correcto de acuerdo a la pieza seleccionada
+          switch (pieza) {
+            case "rey":
+              caracter = "♚";
+              break;
+            case "reina":
+              caracter = "♛";
+              break;
+            case "torre":
+              caracter = "♜";
+              break;
+            case "alfil":
+              caracter = "♝";
+              break;
+            case "caballo":
+              caracter = "♞";
+              break;
+            case "peon":
+              caracter = "♟";
+              break;
+          }
+          // Utiliza el carácter Unicode para crear un nuevo elemento de texto y agregarlo al tablero de ajedrez
+          let texto = document.createTextNode(caracter);
+          let casilla = document.getElementById(
+            "fila" + fila + "columna" + columna
+          );
+          casilla.appendChild(texto);
+        }
+      </script>
+    </form>
+  </body>
 </html>
