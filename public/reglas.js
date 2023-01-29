@@ -1,15 +1,22 @@
-export const JUEGO = {};
+export const MOVIMIENTO_EXACTO = "exact";
+
+export const JUEGO = {
+  friendly_fire: false,
+};
+
+export const CASILLERO = {};
 
 export const MOVIMIENTO = {
-  forward_only: false,
   capture: true,
   capture_only: false,
   en_passant: false,
+  forward_only: false,
+  jump: false,
+  exact: false,
 };
 
 export const PIEZA = {
   check: false,
   castling: false,
-  jump: false,
   promotion: false,
 };

@@ -21,6 +21,10 @@ td {
   background-color: darkgreen;
 }
 
+.rojo {
+  background-color: red;
+}
+
 /* Estilo para el contenedor del formulario */
 #form-container {
   width: 500px;

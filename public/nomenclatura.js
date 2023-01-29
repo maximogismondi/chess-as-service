@@ -92,7 +92,11 @@ export const CASILLEROS = [
 
 export const COLORES = ["W", "B"];
 
-export const DIRECCIONES = ["N", "S", "E", "W", "NE", "NO", "SE", "SO"];
+export const DIRECCIONES = [
+  ["N", "S"],
+  ["E", "W"],
+  ["U", "D"],
+];
 
 export const REY = "K";
 export const REINA = "Q";
