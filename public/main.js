@@ -1,7 +1,8 @@
-import { Juego, Paso, Pieza, Movimiento } from "./chess.js";
+import { Juego, Paso, Pieza, Movimiento } from "./ajedrez.js";
 import { Rey, Reina, Alfil, Torre, Peon, Caballo } from "./piezas.js";
+import * as REGLAS from "./reglas.js";
 
-let juego = new Juego([8, 8]);
+let juego = new Juego([11, 11]);
 // juego.agregar_pieza([0, 0], new Torre(0, 0));
 // juego.agregar_pieza([0, 7], new Torre(0, 1));
 // juego.agregar_pieza([7, 0], new Torre(1, 0));
@@ -35,29 +36,73 @@ let juego = new Juego([8, 8]);
 // juego.agregar_pieza([6, 6], new Peon(1, 6));
 // juego.agregar_pieza([6, 7], new Peon(1, 7));
 
-let posicion = [3, 3];
+let posicion = [5, 5];
 
 let pieza = new Pieza(0, "B", 0, [
   new Movimiento([
-    new Paso([1, 0]),
-    new Paso([0, 1]),
-    new Paso([2, 0]),
-    new Paso([0, 2]),
+    new Paso([2, 1], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([2, 0], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([2, 2], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([2, 0], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([1, 1], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([1, 0], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([1, 2], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([1, 0], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([2, 2], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([0, 2], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([1, 2], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([0, 2], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([1, 1], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([0, 1], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
+  ]),
+  new Movimiento([
+    new Paso([2, 1], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.CANTIDAD_MAX]: 1 }),
+    new Paso([0, 1], { [REGLAS.CANTIDAD_MIN]: 0, [REGLAS.INCREMENTO]: 2 }),
   ]),
 ]);
 
-console.log(pieza);
+document.querySelectorAll(".casillero").forEach((casillero) => {
+  casillero.addEventListener("click", function () {
+    let posicion = this.id.match(/\d+/g).map(Number);
+    reset();
+
+    if (!juego.obtener_casillero(posicion).esta_vacio()) {
+      juego
+        .obtener_pieza(posicion)
+        .proyeccion_movimientos(posicion, juego)
+        .forEach((proyeccion) => {
+          mostrar_casilleros(proyeccion);
+        });
+    }
+  });
+});
 
 juego.agregar_pieza(posicion, pieza);
-juego
-  .obtener_pieza(posicion)
-  .proyeccion_movimientos(posicion, juego)
-  .forEach((proyeccion) => {
-    let casillero = document.getElementById(
-      "fila" + proyeccion[0] + "columna" + proyeccion[1]
-    );
-    casillero.className = "rojo";
+
+function mostrar_casilleros(posicion) {
+  let casillero = document.getElementById(
+    "fila" + posicion[0] + "columna" + posicion[1]
+  );
+  casillero.classList.add("rojo");
+}
+
+function reset() {
+  document.querySelectorAll(".casillero").forEach((pieza) => {
+    pieza.classList.remove("rojo");
   });
+}
 
 juego_a_html(juego);
 
@@ -93,3 +138,45 @@ function juego_a_html(juego) {
     }
   });
 }
+
+document.getElementById("crear_pieza").addEventListener("click", function () {
+  var fila = document.getElementById("fila").value;
+  var columna = document.getElementById("columna").value;
+  var pieza = document.getElementById("pieza").value;
+  // var color = document.getElementById("color").value;
+  let caracter;
+
+  // Utiliza un switch para asignar el carácter Unicode correcto de acuerdo a la pieza seleccionada
+  switch (pieza) {
+    case "rey":
+      caracter = "♚";
+      juego.agregar_pieza([fila, columna], new Rey([0, 0]));
+      break;
+    case "reina":
+      juego.agregar_pieza([fila, columna], new Reina([0, 0]));
+      caracter = "♛";
+      break;
+    case "torre":
+      juego.agregar_pieza([fila, columna], new Torre([0, 0]));
+      caracter = "♜";
+      break;
+    case "alfil":
+      juego.agregar_pieza([fila, columna], new Alfil([0, 0]));
+      caracter = "♝";
+      break;
+    case "caballo":
+      juego.agregar_pieza([fila, columna], new Caballo([0, 0]));
+      caracter = "♞";
+      break;
+    case "peon":
+      juego.agregar_pieza([fila, columna], new Peon([0, 0]));
+      caracter = "♟";
+      break;
+  }
+  // Utiliza el carácter Unicode para crear un nuevo elemento de texto y agregarlo al tablero de ajedrez
+  let texto = document.createTextNode(caracter);
+  let casilla = document.getElementById("fila" + fila + "columna" + columna);
+
+  casilla.innerHTML = "";
+  casilla.appendChild(texto);
+});

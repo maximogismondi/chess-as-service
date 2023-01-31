@@ -1,11 +1,13 @@
 import * as NOMENCLATURA from "./nomenclatura.js";
 import * as REGLAS from "./reglas.js";
 
+// alert("agregar proyectar por pasos y un proyectar general, seria genial");
+
 export class Juego {
-  constructor(dimension) {
+  constructor(dimension, reglas = REGLAS.JUEGO) {
     this.tablero = this._crear_tablero([], dimension);
     this.dimension = dimension;
-    this.reglas = { ...REGLAS.JUEGO };
+    this.reglas = Object.assign({}, REGLAS.JUEGO, reglas);
   }
 
   _crear_tablero(posicion_acumulada, casilleros_dimension) {
@@ -68,6 +70,10 @@ export class Juego {
   }
 
   movimiento_valido(pieza, origen, destino) {
+    if (origen.every((value, index) => value === destino[index])) {
+      return false;
+    }
+
     if (!this.posicion_esta_en_tablero(destino)) {
       return false;
     }
@@ -81,10 +87,10 @@ export class Juego {
 }
 
 export class Casillero {
-  constructor(posicion, contenido = null, reglas = { ...REGLAS.CASILLERO }) {
+  constructor(posicion, contenido = null, reglas = REGLAS.CASILLERO) {
     this.posicion = posicion;
     this.contenido = contenido;
-    this.reglas = reglas;
+    this.reglas = Object.assign({}, REGLAS.CASILLERO, reglas);
   }
 
   nomenclatura() {
@@ -102,91 +108,59 @@ export class Casillero {
 }
 
 export class Pieza {
-  constructor(
-    color,
-    nombre,
-    numero,
-    movimientos = [],
-    reglas = { ...REGLAS.PIEZA }
-  ) {
+  constructor(color, nombre, numero, movimientos = [], reglas = REGLAS.PIEZA) {
     this.color = color;
     this.numero = numero;
     this.nombre = nombre;
     this.movimientos = movimientos;
-    this.reglas = reglas;
+    this.reglas = Object.assign({}, REGLAS.PIEZA, reglas);
   }
   nomenclatura() {
     return [color, nombre, numero].join(NOMENCLATURA.SEPARADOR);
   }
 
-  proyecciones_combinacion_pasos(
-    movimiento,
-    pasos_acumulados,
-    posicion,
-    juego
-  ) {
-    let pasos_restantes = movimiento.pasos.length - pasos_acumulados.length;
-
-    if (pasos_restantes < 1) {
-      return [movimiento.proyectar(posicion, pasos_acumulados)];
+  combinaciones_pasos(movimiento, pasos_acumulados, posicion, juego) {
+    if (movimiento.pasos.length == pasos_acumulados.length) {
+      return [pasos_acumulados];
     }
 
-    let proyecciones = [];
-    let casilleros_paso_actual = 1;
+    let combinaciones = [];
     let paso_actual = movimiento.pasos[pasos_acumulados.length];
-    let proyeccion = movimiento.proyectar(
-      posicion,
-      pasos_acumulados.concat(
-        casilleros_paso_actual,
-        ...Array.from({ length: pasos_restantes - 1 }, () => 1)
-      )
-    );
 
-    while (
-      (paso_actual.casilleros == NOMENCLATURA.INFINITO ||
-        casilleros_paso_actual <= paso_actual.casilleros) &&
-      juego.posicion_esta_en_tablero(proyeccion)
+    for (
+      let casilleros_paso_actual = paso_actual.cant_casilleros_minima();
+      paso_actual.casilleros_correctos(casilleros_paso_actual) &&
+      juego.posicion_esta_en_tablero(
+        paso_actual.proyectar(posicion, casilleros_paso_actual)
+      );
+      casilleros_paso_actual += paso_actual.incremento()
     ) {
-      proyecciones = proyecciones.concat(
-        this.proyecciones_combinacion_pasos(
+      combinaciones.push(
+        ...this.combinaciones_pasos(
           movimiento,
           pasos_acumulados.concat(casilleros_paso_actual),
-          posicion,
+          paso_actual.proyectar(posicion, casilleros_paso_actual),
           juego
         )
       );
-      casilleros_paso_actual++;
-      proyeccion = movimiento.proyectar(posicion, [
-        ...pasos_acumulados,
-        casilleros_paso_actual,
-        ...Array.from({ length: pasos_restantes - 1 }, () => 1),
-      ]);
     }
-    return proyecciones;
+    return combinaciones;
   }
 
   proyeccion_movimientos(posicion, juego) {
     return Array.from(this.movimientos, (movimiento) => {
-      let proyecciones_por_movimiento = [];
-      if (movimiento.reglas[REGLAS.MOVIMIENTO_EXACTO]) {
-        let proyeccion = [...posicion];
-
-        proyecciones_por_movimiento = [
-          movimiento.proyectar(
-            proyeccion,
-            Array.from(movimiento.pasos, (paso) => {
-              return paso.casilleros;
-            })
-          ),
-        ];
-      } else {
-        proyecciones_por_movimiento = this.proyecciones_combinacion_pasos(
-          movimiento,
-          [],
-          posicion,
-          juego
-        );
-      }
+      let combinaciones = this.combinaciones_pasos(
+        movimiento,
+        [],
+        posicion,
+        juego
+      );
+      let proyecciones_por_movimiento = Array.from(
+        combinaciones,
+        (combinacion) => {
+          return movimiento.proyectar(posicion, combinacion);
+        }
+      );
 
       //me faltaria verificar para cada camino posible hacia la proyeccion
 
@@ -205,17 +179,17 @@ export class Movimiento {
 
   proyectar(posicion, casilleros) {
     //validar
-    let proyeccion = [...posicion];
-    this.pasos.forEach((paso, i) => {
-      paso.direccion.forEach((direccion, j) => {
-        if (direccion == 1) {
-          proyeccion[j] += casilleros[i];
-        } else if (direccion == 2) {
-          proyeccion[j] -= casilleros[i];
-        }
-      });
-    });
-    return proyeccion;
+    return this.pasos.reduce(
+      (proyeccion, paso, index) => {
+        return paso.proyectar(proyeccion, casilleros[index]);
+      },
+      [...posicion]
+    );
+
+    // this.pasos.forEach((paso, i) => {
+    //   proyeccion = paso.proyectar(proyeccion, casilleros[i]);
+    // });
+    // return proyeccion;
   }
 
   // nomenclatura() {
@@ -228,10 +202,47 @@ export class Movimiento {
 }
 
 export class Paso {
-  constructor(direccion, casilleros = NOMENCLATURA.INFINITO) {
+  constructor(direccion, reglas = REGLAS.PASO) {
     // direccion viene en forma de array y con la direccion por dimension (0,1,2)
     this.direccion = direccion;
-    this.casilleros = casilleros;
+    this.reglas = Object.assign({}, REGLAS.PASO, reglas);
+  }
+
+  proyectar(posicion, casilleros) {
+    //validar
+    let proyeccion = [...posicion];
+
+    this.direccion.forEach((direccion, index) => {
+      if (direccion == 1) {
+        proyeccion[index] += casilleros;
+      } else if (direccion == 2) {
+        proyeccion[index] -= casilleros;
+      }
+    });
+    return proyeccion;
+  }
+
+  casilleros_correctos(casilleros) {
+    if (this.reglas[REGLAS.MOVIMIENTO_EXACTO]) {
+      return casilleros == this.reglas[REGLAS.CANTIDAD_MAX];
+    }
+    if (this.reglas[REGLAS.CANTIDAD_MAX] != NOMENCLATURA.INFINITO) {
+      return casilleros <= this.reglas[REGLAS.CANTIDAD_MAX];
+    }
+    return true;
+  }
+
+  cant_casilleros_minima() {
+    if (this.reglas[REGLAS.MOVIMIENTO_EXACTO]) {
+      return this.reglas[REGLAS.CANTIDAD_MAX];
+    }
+    //podria agregar una regla para 0 casilleros
+    return this.reglas[REGLAS.CANTIDAD_MIN];
+  }
+
+  incremento() {
+    //pondria reglas para aumentar de a dos o cosas de esas
+    return this.reglas[REGLAS.INCREMENTO];
   }
 
   // nomenclatura() {

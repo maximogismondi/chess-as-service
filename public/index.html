@@ -37,24 +37,21 @@
         </select>
       </div>
       <div class="form-element">
-        <input
-          type="button"
-          value="Crear Pieza"
-          id="crear_pieza"
-          onclick="crearPieza()"
-        />
+        <input type="button" value="Crear Pieza" id="crear_pieza" />
       </div>
       <script>
         var tablero = document.getElementById("tablero");
 
-        // Crear tabla 8x8
-        for (var i = 0; i < 8; i++) {
+        let dimension = [11, 11];
+
+        for (var i = 0; i < dimension[0]; i++) {
           var fila = tablero.insertRow(i);
-          for (var j = 0; j < 8; j++) {
+          for (var j = 0; j < dimension[1]; j++) {
             var casillero = fila.insertCell(j);
             casillero.id = "fila" + i + "columna" + j;
 
             // Aplicar clases para el patrón de ajedrez
+            casillero.classList.add("casillero");
             if ((i + j) % 2 == 0) {
               casillero.classList.add("blanco");
             } else {
@@ -64,41 +61,6 @@
         }
 
         // Asignar pieza al presionar el botón "Crear Pieza"
-        function crearPieza() {
-          var fila = document.getElementById("fila").value;
-          var columna = document.getElementById("columna").value;
-          var pieza = document.getElementById("pieza").value;
-          // var color = document.getElementById("color").value;
-          let caracter;
-
-          // Utiliza un switch para asignar el carácter Unicode correcto de acuerdo a la pieza seleccionada
-          switch (pieza) {
-            case "rey":
-              caracter = "♚";
-              break;
-            case "reina":
-              caracter = "♛";
-              break;
-            case "torre":
-              caracter = "♜";
-              break;
-            case "alfil":
-              caracter = "♝";
-              break;
-            case "caballo":
-              caracter = "♞";
-              break;
-            case "peon":
-              caracter = "♟";
-              break;
-          }
-          // Utiliza el carácter Unicode para crear un nuevo elemento de texto y agregarlo al tablero de ajedrez
-          let texto = document.createTextNode(caracter);
-          let casilla = document.getElementById(
-            "fila" + fila + "columna" + columna
-          );
-          casilla.appendChild(texto);
-        }
       </script>
     </form>
   </body>
