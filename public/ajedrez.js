@@ -31,7 +31,7 @@ export class Juego {
 
   agregar_pieza(posicion, pieza) {
     //el casillero debe estar vacio?
-    //no puede haber 2 piezas con la misma nomenclatura y color
+    //no puede haber 2 piezas con la misma nomenclatura y equipo
     this.obtener_casillero(posicion).actualizar_contenido(pieza);
   }
 
@@ -73,6 +73,18 @@ export class Juego {
     return true;
   }
 
+  direccion_valida(pieza, movimiento) {
+    if (!movimiento.reglas[REGLAS.SOLO_ADELANTE]) {
+      return true;
+    }
+    return movimiento.pasos.every((paso) => {
+      return (
+        paso.direccion[this.reglas[REGLAS.DIMENSION_ADELANTE]] ==
+        this.reglas[REGLAS.DIRECCION_ADELANTE][pieza.equipo]
+      );
+    });
+  }
+
   camino_valido(movimiento, combinacion, posicion) {
     //se tiene que mejorar...
     let proyeccion = [...posicion];
@@ -98,7 +110,7 @@ export class Juego {
     if (this.obtener_casillero(proyeccion).esta_vacio()) {
       return !movimiento.reglas[REGLAS.SOLO_CAPTURAR];
     }
-    if (this.obtener_pieza(proyeccion).color == pieza.color) {
+    if (this.obtener_pieza(proyeccion).equipo == pieza.equipo) {
       return this.reglas[REGLAS.FUEGO_AMIGO];
     }
     return movimiento.reglas[REGLAS.CAPTURAR];
@@ -116,6 +128,9 @@ export class Juego {
       return false;
     }
 
+    if (!this.direccion_valida(pieza, movimiento)) {
+      return false;
+    }
     if (!this.camino_valido(movimiento, combinacion, posicion)) {
       return false;
     }
@@ -153,18 +168,18 @@ export class Casillero {
 }
 
 export class Pieza {
-  constructor(color, nombre, numero, movimientos = [], reglas = REGLAS.PIEZA) {
-    this.color = color;
+  constructor(equipo, nombre, numero, movimientos = [], reglas = REGLAS.PIEZA) {
+    this.equipo = equipo;
     this.numero = numero;
     this.nombre = nombre;
     this.movimientos = movimientos;
     this.reglas = Object.assign({}, REGLAS.PIEZA, reglas);
   }
   // nomenclatura() {
-  //   return [color, nombre, numero].join(NOMENCLATURA.SEPARADOR);
+  //   return [equipo, nombre, numero].join(NOMENCLATURA.SEPARADOR);
   // }
 
-  combinaciones_pasos(movimiento, pasos_acumulados, posicion, juego) {
+  combinaciones_pasos(juego, movimiento, pasos_acumulados, posicion) {
     if (movimiento.pasos.length == pasos_acumulados.length) {
       return [pasos_acumulados];
     }
@@ -182,10 +197,10 @@ export class Pieza {
     ) {
       combinaciones.push(
         ...this.combinaciones_pasos(
+          juego,
           movimiento,
           pasos_acumulados.concat(casilleros_paso_actual),
-          paso_actual.proyectar(posicion, casilleros_paso_actual),
-          juego
+          paso_actual.proyectar(posicion, casilleros_paso_actual)
         )
       );
     }
@@ -195,7 +210,7 @@ export class Pieza {
   proyeccion_movimientos(posicion, juego) {
     return this.movimientos.reduce((proyecciones, movimiento) => {
       return proyecciones.concat(
-        this.combinaciones_pasos(movimiento, [], posicion, juego)
+        this.combinaciones_pasos(juego, movimiento, [], posicion)
           .filter((combinacion) => {
             return juego.movimiento_valido(
               this,

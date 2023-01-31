@@ -4,7 +4,7 @@ import * as REGLAS from "./reglas.js";
 
 export class Rey extends Pieza {
   constructor(color, numero) {
-    super(color, NOMENCLATURA.REY, numero, {
+    super(color, NOMENCLATURA.REY, numero, [], {
       check: true,
       castling: true,
     });
@@ -18,10 +18,6 @@ export class Rey extends Pieza {
       new Movimiento([new Paso([2, 1], { [REGLAS.CANTIDAD_MAX]: 1 })]),
       new Movimiento([new Paso([2, 2], { [REGLAS.CANTIDAD_MAX]: 1 })]),
     ];
-    Object.assign(this.reglas, {
-      check: true,
-      castling: true,
-    });
   }
 }
 
@@ -43,16 +39,15 @@ export class Reina extends Pieza {
 
 export class Torre extends Pieza {
   constructor(color, numero) {
-    super(color, NOMENCLATURA.TORRE, numero);
+    super(color, NOMENCLATURA.TORRE, numero, [], {
+      castling: true,
+    });
     this.movimientos = [
       new Movimiento([new Paso([0, 1])]),
       new Movimiento([new Paso([0, 2])]),
       new Movimiento([new Paso([1, 0])]),
       new Movimiento([new Paso([2, 0])]),
     ];
-    Object.assign(this.reglas, {
-      castling: true,
-    });
   }
 }
 

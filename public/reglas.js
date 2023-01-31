@@ -1,9 +1,14 @@
 import { INFINITO } from "./nomenclatura.js";
 
 export const FUEGO_AMIGO = "friendly_fire";
+export const DIRECCION_ADELANTE = "forward";
+export const DIMENSION_ADELANTE = "forward_dimention";
 
 export const JUEGO = {
   [FUEGO_AMIGO]: false,
+  [DIMENSION_ADELANTE]: 0,
+  [DIRECCION_ADELANTE]: [2, 1],
+  //se cargan las direcciones que se consideran adelante por equipo
 };
 
 export const CASILLERO = {};
