@@ -54,6 +54,10 @@ export class Juego {
     return this.tablero.flat(this.dimension.length - 1);
   }
 
+  se_mueve(posicion, proyeccion) {
+    return !posicion.every((value, index) => value === proyeccion[index]);
+  }
+
   posicion_esta_en_tablero(posicion) {
     if (
       !posicion.map((pos, i) => pos < this.dimension[i]).every((val) => val)
@@ -69,19 +73,60 @@ export class Juego {
     return true;
   }
 
-  movimiento_valido(pieza, origen, destino) {
-    if (origen.every((value, index) => value === destino[index])) {
+  camino_valido(movimiento, combinacion, posicion) {
+    //se tiene que mejorar...
+    let proyeccion = [...posicion];
+    return movimiento.pasos.every((paso, index) => {
+      if (paso.reglas[REGLAS.SALTAR]) {
+        return true;
+      }
+      for (
+        let cantidad_casilleros = paso.cant_casilleros_minima();
+        cantidad_casilleros < combinacion[index];
+        cantidad_casilleros += paso.incremento()
+      ) {
+        proyeccion = paso.proyectar(proyeccion, paso.incremento());
+        if (!this.obtener_casillero(proyeccion).esta_vacio()) {
+          return false;
+        }
+      }
+      return true;
+    });
+  }
+
+  proyeccion_valida(pieza, movimiento, proyeccion) {
+    if (this.obtener_casillero(proyeccion).esta_vacio()) {
+      return !movimiento.reglas[REGLAS.SOLO_CAPTURAR];
+    }
+    if (this.obtener_pieza(proyeccion).color == pieza.color) {
+      return this.reglas[REGLAS.FUEGO_AMIGO];
+    }
+    return movimiento.reglas[REGLAS.CAPTURAR];
+  }
+
+  movimiento_valido(pieza, movimiento, combinacion, posicion) {
+    //que no se quede en el lugar
+    let proyeccion = movimiento.proyectar(posicion, combinacion);
+
+    if (!this.se_mueve(posicion, proyeccion)) {
       return false;
     }
 
-    if (!this.posicion_esta_en_tablero(destino)) {
+    if (!this.posicion_esta_en_tablero(proyeccion)) {
       return false;
     }
 
-    //no haya una pieza aliada
-    //verifiaca el camino si no salta
-    //pueda comer
-    //no pueda comer
+    if (!this.camino_valido(movimiento, combinacion, posicion)) {
+      return false;
+    }
+
+    if (!this.proyeccion_valida(pieza, movimiento, proyeccion)) {
+      return false;
+    }
+
+    //verifiaca el camino si no salta - a medias
+    //verificar jaque
+
     return true;
   }
 }
@@ -115,9 +160,9 @@ export class Pieza {
     this.movimientos = movimientos;
     this.reglas = Object.assign({}, REGLAS.PIEZA, reglas);
   }
-  nomenclatura() {
-    return [color, nombre, numero].join(NOMENCLATURA.SEPARADOR);
-  }
+  // nomenclatura() {
+  //   return [color, nombre, numero].join(NOMENCLATURA.SEPARADOR);
+  // }
 
   combinaciones_pasos(movimiento, pasos_acumulados, posicion, juego) {
     if (movimiento.pasos.length == pasos_acumulados.length) {
@@ -148,26 +193,22 @@ export class Pieza {
   }
 
   proyeccion_movimientos(posicion, juego) {
-    return Array.from(this.movimientos, (movimiento) => {
-      let combinaciones = this.combinaciones_pasos(
-        movimiento,
-        [],
-        posicion,
-        juego
+    return this.movimientos.reduce((proyecciones, movimiento) => {
+      return proyecciones.concat(
+        this.combinaciones_pasos(movimiento, [], posicion, juego)
+          .filter((combinacion) => {
+            return juego.movimiento_valido(
+              this,
+              movimiento,
+              combinacion,
+              posicion
+            );
+          })
+          .map((combinacion) => {
+            return movimiento.proyectar(posicion, combinacion);
+          })
       );
-      let proyecciones_por_movimiento = Array.from(
-        combinaciones,
-        (combinacion) => {
-          return movimiento.proyectar(posicion, combinacion);
-        }
-      );
-
-      //me faltaria verificar para cada camino posible hacia la proyeccion
-
-      return proyecciones_por_movimiento.filter((proyeccion) => {
-        return juego.movimiento_valido(this, posicion, proyeccion);
-      });
-    }).flat();
+    }, []);
   }
 }
 

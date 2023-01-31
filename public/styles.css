@@ -1,28 +1,40 @@
 /* Centrar tablero en la pantalla */
 table {
   margin: 0 auto;
+  border-spacing: 1px;
 }
 
 /* Establecer tamaño de las casillas */
 td {
   width: 50px;
   height: 50px;
-  font-size: 40px;
   text-align: center;
-  line-height: 50px; /* el valor debe ser el mismo que el alto de la casilla */
+}
+
+.pieza {
+  width: 50px;
+  height: 100%;
 }
 
 /* Establecer patrón de ajedrez */
 .blanco {
-  background-color: white;
+  background-color: #ebecd0;
 }
 
 .negro {
-  background-color: darkgreen;
+  background-color: #769656;
 }
 
 .rojo {
   background-color: red;
+}
+
+.equipo1 {
+  color: #565352;
+}
+
+.equipo2 {
+  color: #f8f8f8;
 }
 
 /* Estilo para el contenedor del formulario */

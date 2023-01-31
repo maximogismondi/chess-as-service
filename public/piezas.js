@@ -76,130 +76,142 @@ export class Caballo extends Pieza {
         new Paso([0, 1], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([1, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([1, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([0, 1], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([0, 2], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([2, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([2, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([0, 2], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([0, 1], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([2, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([1, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([0, 2], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([0, 2], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([1, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
       new Movimiento([
         new Paso([2, 0], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 1,
+          [REGLAS.SALTAR]: true,
         }),
         new Paso([0, 1], {
           [REGLAS.MOVIMIENTO_EXACTO]: true,
           [REGLAS.CANTIDAD_MAX]: 2,
+          [REGLAS.SALTAR]: true,
         }),
       ]),
     ];
-    Object.assign(this.reglas, {
-      jump: true,
-    });
   }
 }
 
 export class Peon extends Pieza {
   constructor(color, numero) {
-    super(color, NOMENCLATURA.PEON, numero);
-    this.movimientos = [
-      new Movimiento([new Paso([1, 0], { [REGLAS.CANTIDAD_MAX]: 1 })], {
-        forward_only: true,
-        capture: false,
-      }),
-      new Movimiento([new Paso([1, 0], { [REGLAS.CANTIDAD_MAX]: 2 })], {
-        forward_only: true,
-        capture: false,
-        en_passant: true,
-      }),
-      new Movimiento([new Paso([2, 0], { [REGLAS.CANTIDAD_MAX]: 1 })], {
-        forward_only: true,
-        capture: false,
-      }),
-      new Movimiento([new Paso([2, 0], { [REGLAS.CANTIDAD_MAX]: 2 })], {
-        forward_only: true,
-        capture: false,
-        en_passant: true,
-      }),
-      new Movimiento([new Paso([1, 1], { [REGLAS.CANTIDAD_MAX]: 1 })], {
-        forward_only: true,
-        capture_only: false,
-      }),
-      new Movimiento([new Paso([2, 2], { [REGLAS.CANTIDAD_MAX]: 1 })], {
-        forward_only: true,
-        capture_only: false,
-      }),
-      new Movimiento([new Paso([1, 2], { [REGLAS.CANTIDAD_MAX]: 1 })], {
-        forward_only: true,
-        capture_only: true,
-      }),
-      new Movimiento([new Paso([2, 1], { [REGLAS.CANTIDAD_MAX]: 1 })], {
-        forward_only: true,
-        capture_only: false,
-      }),
-    ];
-    Object.assign(this.reglas, {
+    super(color, NOMENCLATURA.PEON, numero, [], {
       promotion: true,
     });
+    this.movimientos = [
+      new Movimiento([new Paso([1, 0], { [REGLAS.CANTIDAD_MAX]: 1 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.CAPTURAR]: false,
+      }),
+      new Movimiento([new Paso([1, 0], { [REGLAS.CANTIDAD_MAX]: 2 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.CAPTURAR]: false,
+        [REGLAS.EN_PASSANT]: true,
+      }),
+      new Movimiento([new Paso([2, 0], { [REGLAS.CANTIDAD_MAX]: 1 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.CAPTURAR]: false,
+      }),
+      new Movimiento([new Paso([2, 0], { [REGLAS.CANTIDAD_MAX]: 2 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.CAPTURAR]: false,
+        [REGLAS.EN_PASSANT]: true,
+      }),
+      new Movimiento([new Paso([1, 1], { [REGLAS.CANTIDAD_MAX]: 1 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.SOLO_CAPTURAR]: true,
+      }),
+      new Movimiento([new Paso([2, 2], { [REGLAS.CANTIDAD_MAX]: 1 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.SOLO_CAPTURAR]: true,
+      }),
+      new Movimiento([new Paso([1, 2], { [REGLAS.CANTIDAD_MAX]: 1 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.SOLO_CAPTURAR]: true,
+      }),
+      new Movimiento([new Paso([2, 1], { [REGLAS.CANTIDAD_MAX]: 1 })], {
+        [REGLAS.SOLO_ADELANTE]: true,
+        [REGLAS.SOLO_CAPTURAR]: true,
+      }),
+    ];
   }
 }

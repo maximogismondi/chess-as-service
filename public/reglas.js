@@ -1,16 +1,23 @@
 import { INFINITO } from "./nomenclatura.js";
 
+export const FUEGO_AMIGO = "friendly_fire";
+
 export const JUEGO = {
-  friendly_fire: false,
+  [FUEGO_AMIGO]: false,
 };
 
 export const CASILLERO = {};
 
+export const CAPTURAR = "capture";
+export const SOLO_CAPTURAR = "capture_only";
+export const EN_PASSANT = "en_passant";
+export const SOLO_ADELANTE = "forward_only";
+
 export const MOVIMIENTO = {
-  capture: true,
-  capture_only: false,
-  en_passant: false,
-  forward_only: false,
+  [CAPTURAR]: true,
+  [SOLO_CAPTURAR]: false,
+  [EN_PASSANT]: false,
+  [SOLO_ADELANTE]: false,
 };
 
 export const SALTAR = "jump";

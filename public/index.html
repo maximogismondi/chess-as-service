@@ -17,13 +17,13 @@
           placeholder="Ingresa una columna (0-7)"
         />
       </div>
-      <!-- <div class="form-element">
+      <div class="form-element">
         <select id="color">
           <option value="">Selecciona un color</option>
           <option value="blanco">Blanco</option>
           <option value="negro">Negro</option>
         </select>
-      </div> -->
+      </div>
 
       <div class="form-element">
         <select id="pieza">
@@ -42,7 +42,7 @@
       <script>
         var tablero = document.getElementById("tablero");
 
-        let dimension = [11, 11];
+        let dimension = [8, 8];
 
         for (var i = 0; i < dimension[0]; i++) {
           var fila = tablero.insertRow(i);
