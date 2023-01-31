@@ -17,7 +17,6 @@ juego.agregar_pieza([7, 2], new Caballo(0, 0));
 juego.agregar_pieza([7, 5], new Caballo(0, 1));
 juego.agregar_pieza([0, 3], new Reina(1, 0));
 juego.agregar_pieza([7, 3], new Reina(0, 0));
-juego.agregar_pieza([4, 4], new Reina(0, 0));
 juego.agregar_pieza([0, 4], new Rey(1, 0));
 juego.agregar_pieza([7, 4], new Rey(0, 0));
 juego.agregar_pieza([1, 0], new Peon(1, 0));
@@ -74,7 +73,7 @@ let pieza = new Pieza(0, "B", 0, [
   ]),
 ]);
 
-juego.agregar_pieza(posicion, pieza);
+// juego.agregar_pieza(posicion, pieza);
 
 document.querySelectorAll(".casillero").forEach((casillero) => {
   casillero.addEventListener("click", function () {
