@@ -3,11 +3,13 @@ import { INFINITO } from "./nomenclatura.js";
 export const FUEGO_AMIGO = "friendly_fire";
 export const DIRECCION_ADELANTE = "forward";
 export const DIMENSION_ADELANTE = "forward_dimention";
+export const JUGADORES = "players";
 
 export const JUEGO = {
   [FUEGO_AMIGO]: false,
   [DIMENSION_ADELANTE]: 0,
   [DIRECCION_ADELANTE]: [2, 1],
+  [JUGADORES]: 2,
   //se cargan las direcciones que se consideran adelante por equipo
 };
 
@@ -39,8 +41,12 @@ export const PASO = {
   [CANTIDAD_MAX]: INFINITO,
 };
 
+export const JAQUE = "check";
+export const ENROQUE = "castling";
+export const PROMOCION = "promotion";
+
 export const PIEZA = {
-  check: false,
-  castling: false,
-  promotion: false,
+  [JAQUE]: false,
+  [ENROQUE]: false,
+  [PROMOCION]: false,
 };

@@ -4,7 +4,7 @@ import * as REGLAS from "./reglas.js";
 // alert("agregar proyectar por pasos y un proyectar general, seria genial");
 
 export class Juego {
-  constructor(dimension, reglas = REGLAS.JUEGO) {
+  constructor(dimension = [8, 8], reglas = REGLAS.JUEGO) {
     this.tablero = this._crear_tablero([], dimension);
     this.dimension = dimension;
     this.reglas = Object.assign({}, REGLAS.JUEGO, reglas);
@@ -116,7 +116,60 @@ export class Juego {
     return movimiento.reglas[REGLAS.CAPTURAR];
   }
 
-  movimiento_valido(pieza, movimiento, combinacion, posicion) {
+  posiciones_con_jaque(equipo) {
+    return this.obtener_casilleros()
+      .filter((casillero) => {
+        if (casillero.esta_vacio()) {
+          return false;
+        }
+
+        if (!casillero.obtener_contenido().reglas[REGLAS.JAQUE]) {
+          return false;
+        }
+        return casillero.obtener_contenido().equipo == equipo;
+      })
+      .map((casillero) => {
+        return casillero.posicion;
+      });
+  }
+
+  posicion_en_jaque(posicion) {
+    return !this.obtener_casilleros()
+      .filter((casillero) => {
+        if (casillero.esta_vacio()) {
+          return false;
+        }
+        return (
+          casillero.obtener_contenido().equipo !=
+          this.obtener_pieza(posicion).equipo
+        );
+      })
+      .every((casillero) => {
+        return casillero
+          .obtener_contenido()
+          .proyeccion_movimientos(casillero.posicion, this, false)
+          .every((casillero) => {
+            return !casillero.every((e, i) => e === posicion[i]);
+          });
+      });
+  }
+
+  jaque_valido(posicion, proyeccion) {
+    let pieza_anterior = this.mover(posicion, proyeccion, false);
+
+    let hay_jaque = this.posiciones_con_jaque(
+      this.obtener_pieza(proyeccion).equipo
+    ).every((pos) => {
+      return this.posicion_en_jaque(pos);
+    });
+
+    this.mover(proyeccion, posicion, false);
+    this.obtener_casillero(proyeccion).actualizar_contenido(pieza_anterior);
+
+    return !hay_jaque;
+  }
+
+  movimiento_valido(pieza, movimiento, combinacion, posicion, validar_jaque) {
     //que no se quede en el lugar
     let proyeccion = movimiento.proyectar(posicion, combinacion);
 
@@ -138,18 +191,36 @@ export class Juego {
     if (!this.proyeccion_valida(pieza, movimiento, proyeccion)) {
       return false;
     }
+    if (validar_jaque && !this.jaque_valido(posicion, proyeccion)) {
+      return false;
+    }
 
     //verifiaca el camino si no salta - a medias
-    //verificar jaque
 
     return true;
   }
 
-  mover(posicion, proyeccion) {
-    this.obtener_casillero(proyeccion).actualizar_contenido(
-      this.obtener_pieza(posicion)
-    );
+  mover(posicion, proyeccion, jaque = true) {
+    let pieza = this.obtener_pieza(posicion);
     this.obtener_casillero(posicion).actualizar_contenido();
+    let pieza_anterior =
+      this.obtener_casillero(proyeccion).actualizar_contenido(pieza);
+
+    if (!jaque) {
+      return pieza_anterior;
+    }
+    [0, 1]
+      .filter((equipo) => {
+        return equipo != pieza.equipo;
+      })
+      .forEach((equipo) => {
+        this.posiciones_con_jaque(equipo).forEach((pos) => {
+          if (this.posicion_en_jaque(pos)) {
+            alert("CHECK");
+          }
+        });
+      });
+    return pieza_anterior;
   }
 }
 
@@ -166,9 +237,11 @@ export class Casillero {
   esta_vacio() {
     return this.contenido == null;
   }
-  actualizar_contenido(pieza = null) {
+  actualizar_contenido(contenido = null) {
     //podria debolver lo que anteriormente borro
-    this.contenido = pieza;
+    let contenido_anterior = this.contenido;
+    this.contenido = contenido;
+    return contenido_anterior;
   }
   obtener_contenido() {
     return this.contenido;
@@ -215,7 +288,7 @@ export class Pieza {
     return combinaciones;
   }
 
-  proyeccion_movimientos(posicion, juego) {
+  proyeccion_movimientos(posicion, juego, jaque = true) {
     return this.movimientos.reduce((proyecciones, movimiento) => {
       return proyecciones.concat(
         this.combinaciones_pasos(juego, movimiento, [], posicion)
@@ -224,7 +297,8 @@ export class Pieza {
               this,
               movimiento,
               combinacion,
-              posicion
+              posicion,
+              jaque
             );
           })
           .map((combinacion) => {
@@ -236,24 +310,20 @@ export class Pieza {
 }
 
 export class Movimiento {
+  //agregar regla ciclo pasos
+
   constructor(pasos, reglas = {}) {
     this.pasos = pasos;
     this.reglas = Object.assign({ ...REGLAS.MOVIMIENTO }, reglas);
   }
 
   proyectar(posicion, casilleros) {
-    //validar
     return this.pasos.reduce(
       (proyeccion, paso, index) => {
         return paso.proyectar(proyeccion, casilleros[index]);
       },
       [...posicion]
     );
-
-    // this.pasos.forEach((paso, i) => {
-    //   proyeccion = paso.proyectar(proyeccion, casilleros[i]);
-    // });
-    // return proyeccion;
   }
 
   // nomenclatura() {
