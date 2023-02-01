@@ -144,6 +144,13 @@ export class Juego {
 
     return true;
   }
+
+  mover(posicion, proyeccion) {
+    this.obtener_casillero(proyeccion).actualizar_contenido(
+      this.obtener_pieza(posicion)
+    );
+    this.obtener_casillero(posicion).actualizar_contenido();
+  }
 }
 
 export class Casillero {
@@ -160,6 +167,7 @@ export class Casillero {
     return this.contenido == null;
   }
   actualizar_contenido(pieza = null) {
+    //podria debolver lo que anteriormente borro
     this.contenido = pieza;
   }
   obtener_contenido() {

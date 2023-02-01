@@ -74,13 +74,20 @@ let pieza = new Pieza(0, "B", 0, [
 ]);
 
 // juego.agregar_pieza(posicion, pieza);
-
+let casilero_seleccionado;
 document.querySelectorAll(".casillero").forEach((casillero) => {
   casillero.addEventListener("click", function () {
-    let posicion = this.id.match(/\d+/g).map(Number);
-    reset();
-
+    let posicion = casillero.id.match(/\d+/g).map(Number);
+    if (casillero.classList.contains("rojo")) {
+      juego.mover(casilero_seleccionado, posicion);
+      mostrar_pieza(posicion);
+      mostrar_pieza(casilero_seleccionado);
+      reset_rojo();
+      return;
+    }
+    reset_rojo();
     if (!juego.obtener_casillero(posicion).esta_vacio()) {
+      casilero_seleccionado = posicion;
       juego
         .obtener_pieza(posicion)
         .proyeccion_movimientos(posicion, juego)
@@ -98,7 +105,7 @@ function marcar_casillero(posicion) {
   casillero.classList.add("rojo");
 }
 
-function reset() {
+function reset_rojo() {
   document.querySelectorAll(".casillero").forEach((pieza) => {
     pieza.classList.remove("rojo");
   });
@@ -155,6 +162,14 @@ document.getElementById("crear_pieza").addEventListener("click", function () {
 
 function mostrar_pieza(posicion) {
   let casillero = juego.obtener_casillero(posicion);
+
+  if (casillero.esta_vacio()) {
+    document.getElementById(
+      "fila" + casillero.posicion[0] + "columna" + casillero.posicion[1]
+    ).innerHTML = "";
+    return;
+  }
+
   let source = "./resources/";
   if (casillero.obtener_contenido().equipo == 1) {
     source += "b";
