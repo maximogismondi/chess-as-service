@@ -73,14 +73,16 @@ export class Juego {
     return true;
   }
 
-  direccion_valida(pieza, movimiento) {
+  direccion_valida(movimiento, posicion) {
     if (!movimiento.reglas[REGLAS.SOLO_ADELANTE]) {
       return true;
     }
     return movimiento.pasos.every((paso) => {
       return (
         paso.direccion[this.reglas[REGLAS.DIMENSION_ADELANTE]] ==
-        this.reglas[REGLAS.DIRECCION_ADELANTE][pieza.equipo]
+        this.reglas[REGLAS.DIRECCION_ADELANTE][
+          this.obtener_pieza(posicion).equipo
+        ]
       );
     });
   }
@@ -106,11 +108,14 @@ export class Juego {
     });
   }
 
-  proyeccion_valida(pieza, movimiento, proyeccion) {
+  proyeccion_valida(movimiento, posicion, proyeccion) {
     if (this.obtener_casillero(proyeccion).esta_vacio()) {
       return !movimiento.reglas[REGLAS.SOLO_CAPTURAR];
     }
-    if (this.obtener_pieza(proyeccion).equipo == pieza.equipo) {
+    if (
+      this.obtener_pieza(proyeccion).equipo ==
+      this.obtener_pieza(posicion).equipo
+    ) {
       return this.reglas[REGLAS.FUEGO_AMIGO];
     }
     return movimiento.reglas[REGLAS.CAPTURAR];
@@ -156,7 +161,6 @@ export class Juego {
 
   jaque_valido(posicion, proyeccion) {
     let pieza_anterior = this.mover(posicion, proyeccion, false);
-
     let hay_jaque = this.posiciones_con_jaque(
       this.obtener_pieza(proyeccion).equipo
     ).every((pos) => {
@@ -165,11 +169,30 @@ export class Juego {
 
     this.mover(proyeccion, posicion, false);
     this.obtener_casillero(proyeccion).actualizar_contenido(pieza_anterior);
-
     return !hay_jaque;
   }
 
-  movimiento_valido(pieza, movimiento, combinacion, posicion, validar_jaque) {
+  jaque_mate(posicion) {
+    return this.obtener_casilleros()
+      .filter((casillero) => {
+        if (casillero.esta_vacio()) {
+          return false;
+        }
+        return (
+          casillero.obtener_contenido().equipo ==
+          this.obtener_pieza(posicion).equipo
+        );
+      })
+      .every((casillero) => {
+        return (
+          casillero
+            .obtener_contenido()
+            .proyeccion_movimientos(casillero.posicion, this, true).length == 0
+        );
+      });
+  }
+
+  movimiento_valido(movimiento, combinacion, posicion, validar_jaque) {
     //que no se quede en el lugar
     let proyeccion = movimiento.proyectar(posicion, combinacion);
 
@@ -181,16 +204,17 @@ export class Juego {
       return false;
     }
 
-    if (!this.direccion_valida(pieza, movimiento)) {
+    if (!this.direccion_valida(movimiento, posicion)) {
       return false;
     }
     if (!this.camino_valido(movimiento, combinacion, posicion)) {
       return false;
     }
 
-    if (!this.proyeccion_valida(pieza, movimiento, proyeccion)) {
+    if (!this.proyeccion_valida(movimiento, posicion, proyeccion)) {
       return false;
     }
+
     if (validar_jaque && !this.jaque_valido(posicion, proyeccion)) {
       return false;
     }
@@ -200,27 +224,10 @@ export class Juego {
     return true;
   }
 
-  mover(posicion, proyeccion, jaque = true) {
+  mover(posicion, proyeccion) {
     let pieza = this.obtener_pieza(posicion);
     this.obtener_casillero(posicion).actualizar_contenido();
-    let pieza_anterior =
-      this.obtener_casillero(proyeccion).actualizar_contenido(pieza);
-
-    if (!jaque) {
-      return pieza_anterior;
-    }
-    [0, 1]
-      .filter((equipo) => {
-        return equipo != pieza.equipo;
-      })
-      .forEach((equipo) => {
-        this.posiciones_con_jaque(equipo).forEach((pos) => {
-          if (this.posicion_en_jaque(pos)) {
-            alert("CHECK");
-          }
-        });
-      });
-    return pieza_anterior;
+    return this.obtener_casillero(proyeccion).actualizar_contenido(pieza);
   }
 }
 
@@ -294,7 +301,6 @@ export class Pieza {
         this.combinaciones_pasos(juego, movimiento, [], posicion)
           .filter((combinacion) => {
             return juego.movimiento_valido(
-              this,
               movimiento,
               combinacion,
               posicion,

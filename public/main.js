@@ -7,14 +7,14 @@ juego.agregar_pieza([0, 0], new Torre(1, 0));
 juego.agregar_pieza([0, 7], new Torre(1, 1));
 juego.agregar_pieza([7, 0], new Torre(0, 0));
 juego.agregar_pieza([7, 7], new Torre(0, 1));
-juego.agregar_pieza([0, 1], new Alfil(1, 0));
-juego.agregar_pieza([0, 6], new Alfil(1, 1));
-juego.agregar_pieza([7, 1], new Alfil(0, 0));
-juego.agregar_pieza([7, 6], new Alfil(0, 1));
-juego.agregar_pieza([0, 2], new Caballo(1, 0));
-juego.agregar_pieza([0, 5], new Caballo(1, 1));
-juego.agregar_pieza([7, 2], new Caballo(0, 0));
-juego.agregar_pieza([7, 5], new Caballo(0, 1));
+juego.agregar_pieza([0, 1], new Caballo(1, 0));
+juego.agregar_pieza([0, 6], new Caballo(1, 1));
+juego.agregar_pieza([7, 1], new Caballo(0, 0));
+juego.agregar_pieza([7, 6], new Caballo(0, 1));
+juego.agregar_pieza([0, 2], new Alfil(1, 0));
+juego.agregar_pieza([0, 5], new Alfil(1, 1));
+juego.agregar_pieza([7, 2], new Alfil(0, 0));
+juego.agregar_pieza([7, 5], new Alfil(0, 1));
 juego.agregar_pieza([0, 3], new Reina(1, 0));
 juego.agregar_pieza([7, 3], new Reina(0, 0));
 juego.agregar_pieza([0, 4], new Rey(1, 0));
@@ -74,20 +74,35 @@ let pieza = new Pieza(0, "B", 0, [
 ]);
 
 // juego.agregar_pieza(posicion, pieza);
-let casilero_seleccionado;
+let pos_pieza_seleccionada;
 document.querySelectorAll(".casillero").forEach((casillero) => {
   casillero.addEventListener("click", function () {
     let posicion = casillero.id.match(/\d+/g).map(Number);
     if (casillero.classList.contains("rojo")) {
-      juego.mover(casilero_seleccionado, posicion);
+      juego.mover(pos_pieza_seleccionada, posicion);
       mostrar_pieza(posicion);
-      mostrar_pieza(casilero_seleccionado);
+      mostrar_pieza(pos_pieza_seleccionada);
       reset_rojo();
+      Array.from({ length: juego.reglas[REGLAS.JUGADORES] }, (_, i) => i)
+        .filter((equipo) => {
+          return equipo != juego.obtener_pieza(posicion).equipo;
+        })
+        .forEach((equipo) => {
+          juego.posiciones_con_jaque(equipo).forEach((posicion) => {
+            if (juego.posicion_en_jaque(posicion)) {
+              if (juego.jaque_mate(posicion)) {
+                alert("CHECHMATE");
+              } else {
+                alert("CHECK");
+              }
+            }
+          });
+        });
       return;
     }
     reset_rojo();
     if (!juego.obtener_casillero(posicion).esta_vacio()) {
-      casilero_seleccionado = posicion;
+      pos_pieza_seleccionada = posicion;
       juego
         .obtener_pieza(posicion)
         .proyeccion_movimientos(posicion, juego)
